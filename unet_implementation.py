@@ -60,6 +60,8 @@ class UNet(nn.Module):
     self.up3 = Up(256, 128)
     self.up4 = Up(128, 64)
 
+    self.conv = nn.Conv2d(64, num_class, kernel_size = 1)
+
   def forward(self, x):
     inc = self.inc(x)
     down1 = self.down1(inc)
@@ -71,5 +73,7 @@ class UNet(nn.Module):
     x = self.up2(x, down2)
     x = self.up3(x, down1)
     x = self.up4(x, inc)
+
+    x = self.conv(x)
 
     return x
