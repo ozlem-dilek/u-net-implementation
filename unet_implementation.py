@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels, mid_channels = None):
@@ -29,6 +30,16 @@ class Down(nn.Module):
 
   def forward(self, x):
     x = self.doubleConv(x)
-    
     return self.maxPool(x)
 
+class Up(nn.Module):
+  def __init__(self, in_channels, out_channels, mid_channels = None):
+    super().__init__()
+
+    self.deConv = nn.ConvTranspose2d(in_channels = in_channels, out_channels = in_channels//2, kernel_size = 2, stride = 2)
+    self.doubleConv = DoubleConv(in_channels = in_channels, out_channels = out_channels)
+
+  def forward(self, x, x_skip):
+    x = self.deConv(x)
+    x = torch.cat((x, x_skip), dim = 1)
+    return self.doubleConv(x)
